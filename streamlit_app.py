@@ -187,3 +187,16 @@ def main():
             
     else:
         st.warning('👈 Enter a protein sequence and click Predict!')
+# Dependencies warning
+st.sidebar.markdown("### Dependencies")
+st.sidebar.markdown("""
+- `streamlit`
+- `py3Dmol`
+- `stmol`
+- `biotite`
+- `biopython` (optional)
+""")
+
+# Run the app
+if __name__ == "__main__":
+    main()
