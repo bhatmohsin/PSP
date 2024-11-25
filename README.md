@@ -1,6 +1,6 @@
 # 📦 Streamlit App Starter Kit 
 ```
-⬆️ (Replace above with your app's name)
+⬆️ SPC Protein Prediction Model
 ```
 
 Description of the app ...
