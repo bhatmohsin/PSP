@@ -4,6 +4,7 @@ import re
 import py3Dmol
 from stmol import showmol
 import biotite.structure.io as bsio
+import io
 
 # Advanced protein analysis (optional)
 try:
@@ -14,15 +15,15 @@ except ImportError:
 
 # Page configuration
 st.set_page_config(
-    page_title="SPCFold Protein Structure Predictor", 
+    page_title="SPSFold Protein Structure Predictor", 
     page_icon="🧬", 
     layout="wide"
 )
 
 # Sidebar introduction
-st.sidebar.title('🧬 SPCFold Protein Structure Predictor')
+st.sidebar.title('🧬 SPSFold Protein Structure Predictor')
 st.sidebar.markdown("""
-    SPCFold is an advanced protein structure prediction tool 
+    SPSFold is an advanced protein structure prediction tool 
     based on the ESM-2 language model. 
     [Learn More](https://esmatlas.com/about)
 """)
@@ -131,6 +132,19 @@ def analyze_protein_sequence(sequence):
     else:
         st.info("Install Biopython for advanced protein analysis")
 
+def calculate_bfactor(pdb_string):
+    """
+    Calculate B-factor from PDB string
+    """
+    try:
+        # Use io.StringIO to create a file-like object in memory
+        pdb_file = io.StringIO(pdb_string)
+        struct = bsio.load_structure(pdb_file, extra_fields=["b_factor"])
+        return round(struct.b_factor.mean(), 4)
+    except Exception as e:
+        st.error(f"Error calculating B-factor: {e}")
+        return None
+
 def main():
     # Sequence input
     txt = st.sidebar.text_area(
@@ -164,13 +178,13 @@ def main():
                 st.subheader('Predicted Protein Structure')
                 render_mol(pdb_string, visualization_style)
                 
-                # Load structure for analysis
-                struct = bsio.load_structure('predicted.pdb', extra_fields=["b_factor"])
-                b_value = round(struct.b_factor.mean(), 4)
+                # Calculate B-factor
+                b_value = calculate_bfactor(pdb_string)
                 
                 # Confidence and download
                 st.subheader('Prediction Confidence')
-                st.info(f'plDDT Score: {b_value} (0-100 scale)')
+                if b_value is not None:
+                    st.info(f'plDDT Score: {b_value} (0-100 scale)')
                 st.caption('plDDT: Per-residue confidence of structure prediction')
                 
                 # Download PDB
@@ -187,8 +201,9 @@ def main():
             
     else:
         st.warning('👈 Enter a protein sequence and click Predict!')
+
 # Dependencies warning
-st.sidebar.markdown("### Dependencies")
+st.sidebar.markdown("Dependencies")
 st.sidebar.markdown("""
 - `streamlit`
 - `py3Dmol`
